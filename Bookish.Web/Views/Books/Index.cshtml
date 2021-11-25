@@ -1,0 +1,36 @@
+﻿@using Bookish.Data.Models.Internal
+@model List<Book>
+@{
+    ViewData["Title"] = "All Books";
+}
+
+<div class="text-left">
+    <h1 class="display-4">All Books</h1>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Copies Available</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (Book book in Model)
+        {
+            <tr>
+                <td><a href="book/@book.Id">@book.Title</a></td>
+                <td>
+                    @for (var i = 0; i < book.Authors.Count; i++)
+                    {
+                        <a href="author/@book.Authors[i].Id">@book.Authors[i].Name</a>@(i < book.Authors.Count - 1 ? "," : "")
+                    }
+                    
+                </td>
+                <td>@book.Instances.FindAll(i => !i.Checkouts.Exists(c => c.Returned == false)).Count
+                    /
+                    @book.Instances.Count</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,6 +1,6 @@
 namespace Bookish.Data.Models.Database
 {
-    public class CheckoutWrapper
+    public class AuthorWrapper
     {
         
     }

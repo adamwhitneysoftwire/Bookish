@@ -8,12 +8,10 @@ namespace Bookish.Console
     {
         static void Main(string[] args)
         {
-            var library = new Library();
+            var bookishClient = new BookishClient();
 
-            var books = library.FindAllBooks();
+            /*var books = bookishClient.FindAllBooks();
 
-            books.Sort((book1, book2) => String.CompareOrdinal(book1.Title, book2.Title));
-            
             foreach (var book in books)
             {
                 string authorString = "";
@@ -23,7 +21,10 @@ namespace Bookish.Console
                     authorString += bookAuthor.Name;
                 }
                 System.Console.Out.WriteLine($"{book.Title} - {authorString}");           
-            }
+            }*/
+
+            var book = bookishClient.FindBook(1);
+            System.Console.Out.WriteLine("done");
         }
     }
 }

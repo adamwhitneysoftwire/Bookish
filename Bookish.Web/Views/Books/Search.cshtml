@@ -1,0 +1,44 @@
+﻿@using Bookish.Data.Models.Internal
+@model BookSearchResultsViewModel
+@{
+    ViewData["Title"] = "Book Search Results";
+}
+
+<div class="text-left">
+    <h1 class="display-4">Search Results (Books) for "@Model.Query"</h1>
+    <div class="col-6 offset-6">
+        <form action="/books/search" method="get">
+            <div class="form-group d-flex flex-row">
+                <input class="form-control col-8 mr-1" type="search" name="q" placeholder="Enter book title" value="@Model.Query"/>
+                <button class="btn btn-outline-primary flex-grow-1" type="submit">Search Again</button>
+            </div>
+        </form>
+    </div>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Copies Available</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (Book book in Model.Books)
+        {
+            <tr>
+                <td><a href="book/@book.Id">@book.Title</a></td>
+                <td>
+                    @for (var i = 0; i < book.Authors.Count; i++)
+                    {
+                        <a href="author/@book.Authors[i].Id">@book.Authors[i].Name</a>@(i < book.Authors.Count - 1 ? "," : "")
+                    }
+                    
+                </td>
+                <td>@book.Instances.FindAll(i => !i.Checkouts.Exists(c => c.Returned == false)).Count
+                    /
+                    @book.Instances.Count</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

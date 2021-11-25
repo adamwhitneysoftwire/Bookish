@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Bookish";
+}
+
+<div class="text-left">
+    <h1 class="display-4">Welcome to Bookish</h1>
+    <div class="row">
+        <div class="col-6">
+            <form action="/books/search" method="get">
+                <div class="form-group d-flex flex-row">
+                    <input class="form-control col-8 mr-1" type="search" name="q" placeholder="Enter book title"/>
+                    <button class="btn btn-outline-primary flex-grow-1" type="submit">Search Books</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-6">
+            <form action="/authors/search" method="get">
+                <div class="form-group d-flex flex-row">
+                    <input class="form-control col-8 mr-1" type="search" name="q" placeholder="Enter author name"/>
+                    <button class="btn btn-outline-primary flex-grow-1" type="submit">Search Authors</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
