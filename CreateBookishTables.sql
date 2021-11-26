@@ -28,7 +28,7 @@ go
 -- ************************************** [Author]
 CREATE TABLE [Author]
 (
- [Id]   int NOT NULL ,
+ [Id]   int NOT NULL IDENTITY ,
  [Name] varchar(50) NOT NULL ,
 
 
@@ -39,7 +39,7 @@ GO
 -- ************************************** [Book]
 CREATE TABLE [Book]
 (
- [Id]    int NOT NULL ,
+ [Id]    int NOT NULL IDENTITY ,
  [Title] varchar(50) NOT NULL ,
  [Isbn]  bigint NOT NULL ,
 
@@ -51,7 +51,7 @@ GO
 -- ************************************** [BookAuthor]
 CREATE TABLE [BookAuthor]
 (
- [Id] int NOT NULL ,
+ [Id] int NOT NULL IDENTITY ,
  [BookId]       int NOT NULL ,
  [AuthorId]     int NOT NULL ,
 
@@ -78,7 +78,7 @@ GO
 -- ************************************** [BookInstance]
 CREATE TABLE [BookInstance]
 (
- [Id] int NOT NULL ,
+ [Id] int NOT NULL IDENTITY ,
  [BookId]         int NOT NULL ,
 
 
@@ -98,7 +98,7 @@ GO
  -- ************************************** [BookCheckout]
 CREATE TABLE [BookCheckout]
 (
- [Id]         int NOT NULL ,
+ [Id]         int NOT NULL IDENTITY ,
  [UserId]             nvarchar(50) NOT NULL ,
  [InstanceId]     int NOT NULL ,
  [ReturnDate] datetime NOT NULL ,

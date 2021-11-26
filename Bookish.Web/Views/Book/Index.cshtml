@@ -32,7 +32,7 @@
                 
                 @if (bookInstance.Checkouts.Exists(i => i.Returned == false))
                 {
-                    <td><a href="/user?id=@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Id">@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Name</a></td>
+                    <td><a href="/user?id=@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Id">@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Username</a></td>
                     <td>@($"{bookInstance.Checkouts.FindLast(i=>i.Returned==false).ReturnDate:D}")</td>
                 }
                 else

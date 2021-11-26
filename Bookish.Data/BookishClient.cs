@@ -128,6 +128,75 @@ namespace Bookish.Data
 
             return ConvertWrappersToAuthors(authorWrappers);
         }
+        
+        public (User, List<Book>) FindUser(string username)
+        {
+            var queryParameters = new { Username = username.ToUpper() };
+            
+            var userWrappers = _connection.Query<UserWrapper>(@"SELECT Id, NormalizedUserName AS Username
+                FROM AspNetUsers
+                WHERE NormalizedUserName = @Username", queryParameters).AsList();
+
+            if (userWrappers.Count == 0) return (null, null);
+            var user = userWrappers[0].ToUser();
+
+            var checkoutParameters = new {UserId = user.Id};
+            var bookWithUserCheckoutWrappers = _connection.Query<BookWithUserCheckoutWrapper>(@"SELECT Book.Id, Book.Title, Book.Isbn, Author.Id AS AuthorId, Author.Name AS AuthorName, BookInstance.Id AS BookInstanceId, BookCheckout.Id AS CheckoutId, BookCheckout.ReturnDate AS CheckoutReturnDate, BookCheckout.Returned AS CheckoutReturned
+                    FROM Book
+                    LEFT OUTER JOIN BookAuthor ON Book.Id = BookAuthor.BookId
+                    LEFT OUTER JOIN Author ON BookAuthor.AuthorId = Author.Id
+                    JOIN BookInstance ON Book.Id = BookInstance.BookId
+                    JOIN BookCheckout ON BookInstance.Id = BookCheckout.InstanceId
+                    JOIN AspNetUsers ON BookCheckout.UserId = AspNetUsers.Id
+                    WHERE AspNetUsers.Id = @UserId
+                    ORDER BY BookCheckout.ReturnDate DESC, Book.Title ASC, Author.Name ASC, BookInstance.Id ASC", checkoutParameters).AsList();
+
+            var books = new List<Book>();
+            
+            foreach (var bookWithUserCheckoutWrapper in bookWithUserCheckoutWrappers)
+            {
+                var book = books.Find(b => b.Id == bookWithUserCheckoutWrapper.Id);
+                if (book == null)
+                {
+                    book = bookWithUserCheckoutWrapper.ToBook();
+                    books.Add(book);
+                }
+                
+                if (bookWithUserCheckoutWrapper.AuthorId != 0)
+                {
+                    var author = book.Authors.Find(a => a.Id == bookWithUserCheckoutWrapper.AuthorId);
+                    if (author == null)
+                    {
+                        author = bookWithUserCheckoutWrapper.ToAuthor();
+                        book.AddAuthor(author);
+                    }
+                }
+                
+                var bookInstance = book.Instances.Find(i => i.Id == bookWithUserCheckoutWrapper.BookInstanceId);
+                if (bookInstance == null)
+                {
+                    bookInstance = bookWithUserCheckoutWrapper.ToBookInstance(book);
+                    book.AddInstance(bookInstance);
+                }
+
+                var checkout = bookInstance.Checkouts.Find(c => c.Id == bookWithUserCheckoutWrapper.CheckoutId);
+                if (checkout == null)
+                {
+                    checkout = bookWithUserCheckoutWrapper.ToCheckout(user, bookInstance);
+                    bookInstance.AddCheckout(checkout);
+                }
+            }
+
+            return (user, books);
+        }
+
+        /*public List<User> FindAllUsers()
+        {
+        }
+
+        public List<User> SearchUsers(string query)
+        {
+        }*/
 
         private List<Book> ConvertWrappersToBooks(List<BookWrapper> bookWrappers)
         {
@@ -164,7 +233,7 @@ namespace Bookish.Data
         private void FetchBookInstances(Book book)
         {
             var queryParameters = new {BookId = book.Id};
-            var bookInstanceWrappers = _connection.Query<BookInstanceWrapper>(@"SELECT BookInstance.Id, BookCheckout.Id AS CheckoutId, BookCheckout.ReturnDate AS CheckoutReturnDate, BookCheckout.Returned AS CheckoutReturned, AspNetUsers.Id AS UserId, AspNetUsers.NormalizedUserName AS UserName, AspNetUsers.NormalizedEmail AS UserEmail
+            var bookInstanceWrappers = _connection.Query<BookInstanceWrapper>(@"SELECT BookInstance.Id, BookCheckout.Id AS CheckoutId, BookCheckout.ReturnDate AS CheckoutReturnDate, BookCheckout.Returned AS CheckoutReturned, AspNetUsers.Id AS UserId, AspNetUsers.NormalizedUserName AS Username
                     FROM BookInstance
                     LEFT OUTER JOIN BookCheckout ON BookInstance.Id = BookCheckout.InstanceId
                     LEFT OUTER JOIN AspNetUsers ON BookCheckout.UserId = AspNetUsers.Id

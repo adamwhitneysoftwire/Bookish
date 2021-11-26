@@ -10,8 +10,7 @@ namespace Bookish.Data.Models.Database
         public DateTime CheckoutReturnDate { get; set; }
         public int CheckoutReturned { get; set; }
         public string UserId { get; set; }
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
+        public string Username { get; set; }
 
         public BookInstance ToBookInstance(Book book)
         {
@@ -25,7 +24,7 @@ namespace Bookish.Data.Models.Database
         
         public User ToUser()
         {
-            return new User(UserId, UserName, UserEmail);
+            return new User(UserId, Username);
         }
     }
 }

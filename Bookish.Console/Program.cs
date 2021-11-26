@@ -67,7 +67,7 @@ namespace Bookish.Console
                     }  
                     
                     break;
-                /*case "authors":
+                case "authors":
                     if (args.Length < 2)
                     {
                         System.Console.Out.WriteLine("Second argument required for authors command. authors <query> | authors --all");
@@ -95,7 +95,7 @@ namespace Bookish.Console
                         Author.DisplayListToConsole(authors);
                     }
                     
-                    break;*/
+                    break;
                 case "author":
                     if (args.Length < 2)
                     {
@@ -114,6 +114,27 @@ namespace Bookish.Console
                         
                         author.DisplayToConsole();
                         Book.DisplayListToConsole(books);
+                    }  
+                    
+                    break;
+                case "user":
+                    if (args.Length < 2)
+                    {
+                        System.Console.Out.WriteLine("Second argument required for author command. user <email>");
+                    }
+                    else if (args.Length > 2)
+                    {
+                        System.Console.Out.WriteLine("Too many arguments. user <email>");
+                    }
+                    else
+                    {
+                        string username = args[1];
+                        (User user, List<Book> books) = bookishClient.FindUser(username);
+                        
+                        if (user == null) System.Console.Out.WriteLine($"No user matching email '{username}' found.");
+                        
+                        user.DisplayToConsole();
+                        Book.DisplayListWithUserCheckoutsToConsole(books);
                     }  
                     
                     break;

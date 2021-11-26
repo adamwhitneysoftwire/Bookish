@@ -26,7 +26,7 @@ namespace Bookish.Data.Models.Internal
             //
         }
         
-        public static void DisplayListToConsole(List<Book> books)
+        public static void DisplayListToConsole(List<Author> authors)
         {
             //
         }
