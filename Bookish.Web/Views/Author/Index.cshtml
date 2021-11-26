@@ -28,9 +28,7 @@
                         
                         @if (currentAuthor)
                         {
-                            <a href="/author?id=@author.Id">
-                                @author.Name
-                            </a>@(i < book.Authors.Count - 1 ? "," : "")
+                            <a href="/author?id=@author.Id">@author.Name</a>@(i < book.Authors.Count - 1 ? "," : "")
                         }
                         else
                         {

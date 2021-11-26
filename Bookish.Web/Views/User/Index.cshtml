@@ -1,0 +1,72 @@
+﻿@using Bookish.Data.Models.Internal
+@model UserViewModel
+@{
+    ViewData["Title"] = Model.User.Username;
+}
+
+<div class="text-left">
+    <h1 class="display-4">@Model.User.Username</h1>
+    <h2 class="font-weight-light">Book Loans</h2>
+    <hr/>
+    <h3 class="font-weight-light">Current Loans</h3>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Authors</th>
+            <th>#</th>
+            <th>Return Due</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (Checkout checkout in Model.CurrentCheckouts)
+        {
+            var bookInstance = checkout.BookInstance;
+            var book = bookInstance.Book;
+            <tr>
+                <td><a href="/book?id=@book.Id">@book.Title</a></td>
+                <td>
+                    @for (var i = 0; i < book.Authors.Count; i++)
+                    {
+                        Author author = book.Authors[i];
+                        <a href="/author?id=@author.Id">@author.Name</a>@(i < book.Authors.Count - 1 ? "," : "")
+                    }
+                </td>
+                <td>(@bookInstance.Id)</td>
+                <td>@($"{checkout.ReturnDate:D}")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <hr/>
+    <h3 class="font-weight-light">Previous Loans</h3>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Authors</th>
+            <th>#</th>
+            <th>Return Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (Checkout checkout in Model.PreviousCheckouts)
+        {
+            var bookInstance = checkout.BookInstance;
+            var book = bookInstance.Book;
+            <tr>
+                <td><a href="/book?id=@book.Id">@book.Title</a></td>
+                <td>
+                    @for (var i = 0; i < book.Authors.Count; i++)
+                    {
+                        Author author = book.Authors[i];
+                        <a href="/author?id=@author.Id">@author.Name</a>@(i < book.Authors.Count - 1 ? "," : "")
+                    }
+                </td>
+                <td>(@bookInstance.Id)</td>
+                <td>@($"{checkout.ReturnDate:D}")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

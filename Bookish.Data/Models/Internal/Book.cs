@@ -75,25 +75,25 @@ namespace Bookish.Data.Models.Internal
             
             var currentCheckouts = new List<Checkout>();
             var currentCheckoutBooks = books.FindAll(b => b.Instances.Exists(i => i.Checkouts.Exists(c => c.Returned == false)));
-            if (currentCheckoutBooks.Count == 0) System.Console.Out.WriteLine("- No books currently checked out.");
-            
             foreach (var bookInstance in currentCheckoutBooks.SelectMany(b => b.Instances))
             {
                 currentCheckouts.AddRange(bookInstance.Checkouts.FindAll(c => c.Returned == false));
             }
+            
+            if (currentCheckouts.Count == 0) System.Console.Out.WriteLine("- No books currently checked out.");
             
             Checkout.DisplayListToConsole(currentCheckouts);
             
             Console.Out.WriteLine("Returned loans:");
             
             var previousCheckouts = new List<Checkout>();
-            var previousCheckoutBooks = books.FindAll(b => b.Instances.Exists(i => i.Checkouts.Exists(c => c.Returned == true)));
-            if (previousCheckoutBooks.Count == 0) System.Console.Out.WriteLine("- No books previously returned.");
-            
+            var previousCheckoutBooks = books.FindAll(b => b.Instances.Exists(i => i.Checkouts.Exists(c => c.Returned)));
             foreach (var bookInstance in previousCheckoutBooks.SelectMany(b => b.Instances))
             {
                 previousCheckouts.AddRange(bookInstance.Checkouts.FindAll(c => c.Returned == true));
             }
+            
+            if (previousCheckoutBooks.Count == 0) System.Console.Out.WriteLine("- No books previously returned.");
             
             Checkout.DisplayListToConsole(previousCheckouts);
         }
