@@ -164,10 +164,10 @@ namespace Bookish.Data
         private void FetchBookInstances(Book book)
         {
             var queryParameters = new {BookId = book.Id};
-            var bookInstanceWrappers = _connection.Query<BookInstanceWrapper>(@"SELECT BookInstance.Id, BookCheckout.Id AS CheckoutId, BookCheckout.ReturnDate AS CheckoutReturnDate, BookCheckout.Returned AS CheckoutReturned, LibraryUser.Id AS UserId, LibraryUser.Name AS UserName, LibraryUser.Email AS UserEmail
+            var bookInstanceWrappers = _connection.Query<BookInstanceWrapper>(@"SELECT BookInstance.Id, BookCheckout.Id AS CheckoutId, BookCheckout.ReturnDate AS CheckoutReturnDate, BookCheckout.Returned AS CheckoutReturned, AspNetUsers.Id AS UserId, AspNetUsers.NormalizedUserName AS UserName, AspNetUsers.NormalizedEmail AS UserEmail
                     FROM BookInstance
                     LEFT OUTER JOIN BookCheckout ON BookInstance.Id = BookCheckout.InstanceId
-                    LEFT OUTER JOIN LibraryUser ON BookCheckout.UserId = LibraryUser.Id
+                    LEFT OUTER JOIN AspNetUsers ON BookCheckout.UserId = AspNetUsers.Id
                     WHERE BookId = @BookId", queryParameters).AsList();
 
             foreach (var bookInstanceWrapper in bookInstanceWrappers)

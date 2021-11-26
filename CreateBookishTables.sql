@@ -1,15 +1,29 @@
--- ************************************** [User]
-CREATE TABLE [User]
-(
- [Id]       int NOT NULL ,
- [Name]     varchar(50) NOT NULL ,
- [Password] varchar(50) NOT NULL ,
- [Email]    varchar(50) NOT NULL ,
-
-
- CONSTRAINT [PK_37] PRIMARY KEY CLUSTERED ([Id] ASC)
-);
+DROP TABLE [BookCheckout]
 GO
+DROP TABLE [BookInstance]
+GO
+DROP TABLE [BookAuthor]
+GO
+DROP TABLE [Author]
+GO
+DROP TABLE [Book]
+GO
+drop table [AspNetRoleClaims]
+go
+drop table [AspNetUserClaims]
+go
+drop table [AspNetUserLogins]
+go
+drop table [AspNetUserRoles]
+go
+drop table [AspNetRoles]
+go
+drop table [AspNetUserTokens]
+go
+drop table [AspNetUsers]
+go
+drop table [__EFMigrationsHistory]
+go
 
 -- ************************************** [Author]
 CREATE TABLE [Author]
@@ -27,6 +41,7 @@ CREATE TABLE [Book]
 (
  [Id]    int NOT NULL ,
  [Title] varchar(50) NOT NULL ,
+ [Isbn]  bigint NOT NULL ,
 
 
  CONSTRAINT [PK_5] PRIMARY KEY CLUSTERED ([Id] ASC)
@@ -84,14 +99,14 @@ GO
 CREATE TABLE [BookCheckout]
 (
  [Id]         int NOT NULL ,
- [UserId]             int NOT NULL ,
+ [UserId]             nvarchar(50) NOT NULL ,
  [InstanceId]     int NOT NULL ,
  [ReturnDate] datetime NOT NULL ,
  [Returned]   bit NOT NULL ,
 
 
  CONSTRAINT [PK_51] PRIMARY KEY CLUSTERED ([Id] ASC),
- CONSTRAINT [FK_52] FOREIGN KEY ([UserId])  REFERENCES [User]([Id]),
+ CONSTRAINT [FK_52] FOREIGN KEY ([UserId])  REFERENCES [AspNetUsers]([Id]),
  CONSTRAINT [FK_55] FOREIGN KEY ([InstanceId])  REFERENCES [BookInstance]([Id])
 );
 GO

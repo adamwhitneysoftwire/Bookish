@@ -9,7 +9,7 @@ namespace Bookish.Data.Models.Database
         public int CheckoutId { get; set; }
         public DateTime CheckoutReturnDate { get; set; }
         public int CheckoutReturned { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }
 

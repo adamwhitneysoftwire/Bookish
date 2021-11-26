@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookish.Web.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class BookishWebContext : IdentityDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public BookishWebContext(DbContextOptions<BookishWebContext> options)
             : base(options)
         {
         }

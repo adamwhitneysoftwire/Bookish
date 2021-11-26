@@ -4,12 +4,12 @@ namespace Bookish.Data.Models.Internal
 {
     public class User
     {
-        public int Id;
+        public string Id;
         public string Name;
         public string Email;
         public List<Checkout> Checkouts;
         
-        public User(int id, string name, string email)
+        public User(string id, string name, string email)
         {
             Id = id;
             Name = name;
