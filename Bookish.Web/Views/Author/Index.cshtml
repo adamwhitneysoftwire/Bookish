@@ -1,21 +1,12 @@
 ﻿@using Bookish.Data.Models.Internal
-@model BookSearchResultsViewModel
+@model AuthorViewModel
 @{
-    ViewData["Title"] = "Book Search Results";
+    ViewData["Title"] = Model.Author.Name;
 }
 
 <div class="text-left">
-    <div class="row">
-        <div class="col-6">
-            <h1 class="display-4">Book Search</h1>
-        </div>
-        <div class="col-6 d-flex align-items-center">
-            <div class="flex-grow-1">
-                <partial name="_BookSearchPartial"/>
-            </div>
-        </div>
-    </div>
-    <h2 class="font-weight-light">Results for "@Model.Query"</h2>
+    <h1 class="display-4">@Model.Author.Name</h1>
+    <h2>Author's Books</h2>
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>
@@ -32,9 +23,20 @@
                 <td>
                     @for (var i = 0; i < book.Authors.Count; i++)
                     {
-                        <a href="/author?id=@book.Authors[i].Id">@book.Authors[i].Name</a>@(i < book.Authors.Count - 1 ? "," : "")
+                        bool currentAuthor = book.Authors[i].Id != Model.Author.Id;
+                        Author author = book.Authors[i];
+                        
+                        @if (currentAuthor)
+                        {
+                            <a href="/author?id=@author.Id">
+                                @author.Name
+                            </a>@(i < book.Authors.Count - 1 ? "," : "")
+                        }
+                        else
+                        {
+                            <span>@author.Name@(i < book.Authors.Count - 1 ? "," : "")</span>
+                        }
                     }
-                    
                 </td>
                 <td>@book.Instances.FindAll(i => !i.Checkouts.Exists(c => c.Returned == false)).Count
                     /

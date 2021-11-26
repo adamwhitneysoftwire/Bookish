@@ -1,0 +1,47 @@
+﻿@using Bookish.Data.Models.Internal
+@model Book
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="text-left">
+    <h1 class="display-4">@Model.Title <small>(ISBN @Model.Isbn)</small></h1>
+    <p>
+        Author@(Model.Authors.Count != 1 ? "s" : ""):
+        @for (var i = 0; i < Model.Authors.Count; i++)
+        {
+            <a href="/author?id=@Model.Authors[i].Id">@Model.Authors[i].Name</a>@(i < Model.Authors.Count - 1 ? "," : "")
+        }
+    </p>
+    <h2>Library Copies</h2>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Current Status</th>
+                <th>Loaned To</th>
+                <th>Return Due</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (BookInstance bookInstance in Model.Instances)
+        {
+            <tr>
+                <td>@bookInstance.Id</td>
+                <td>@(bookInstance.Checkouts.Exists(i=>i.Returned==false) ? "Checked Out" : "Available")</td>
+                
+                @if (bookInstance.Checkouts.Exists(i => i.Returned == false))
+                {
+                    <td><a href="/user?id=@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Id">@bookInstance.Checkouts.FindLast(i=>i.Returned==false).User.Name</a></td>
+                    <td>@($"{bookInstance.Checkouts.FindLast(i=>i.Returned==false).ReturnDate:D}")</td>
+                }
+                else
+                {
+                    <td>-</td>
+                    <td>-</td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

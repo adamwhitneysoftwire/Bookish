@@ -1,0 +1,43 @@
+﻿@using Bookish.Data.Models.Internal
+@model AuthorSearchResultsViewModel
+@{
+    ViewData["Title"] = "Author Search Results";
+}
+
+<div class="text-left">
+    <div class="row">
+        <div class="col-6">
+            <h1 class="display-4">Author Search</h1>
+        </div>
+        <div class="col-6 d-flex align-items-center">
+            <div class="flex-grow-1">
+                <partial name="_AuthorSearchPartial"/>
+            </div>
+        </div>
+    </div>
+    <h2 class="font-weight-light">Results for "@Model.Query"</h2>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th colspan="2">Books Authored</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (Author author in Model.Authors)
+        {
+            <tr>
+                <td><a href="/author?id=@author.Id">@author.Name</a></td>
+                <td>@author.Books.Count</td>
+                <td>
+                    @for (var i = 0; i < author.Books.Count; i++)
+                    {
+                        var book = author.Books[i];
+                        <a href="/book?id=@book.Id">@book.Title</a>@(i < author.Books.Count - 1 ? "," : "")
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

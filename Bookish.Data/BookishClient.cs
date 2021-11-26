@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Bookish.Data.Models.Database;
@@ -12,6 +13,9 @@ namespace Bookish.Data
         public Book FindBook(int bookId);
         public List<Book> FindAllBooks();
         public List<Book> SearchBooks(string query);
+        public (Author, List<Book>) FindAuthor(int authorId);
+        public List<Author> FindAllAuthors();
+        public List<Author> SearchAuthors(string query);
     }
     
     public class BookishClient : IBookishClient
@@ -29,15 +33,17 @@ namespace Bookish.Data
             
             var bookWrappers = _connection.Query<BookWrapper>(@"SELECT Book.Id, Book.Title, Book.Isbn, Author.Id AS AuthorId, Author.Name AS AuthorName
                 FROM Book
-                LEFT JOIN BookAuthor ON Book.Id = BookAuthor.BookId
-                JOIN Author ON BookAuthor.AuthorId = Author.Id
-                WHERE Book.Id = @BookId", queryParameters).AsList();
+                LEFT OUTER JOIN BookAuthor ON Book.Id = BookAuthor.BookId
+                LEFT OUTER JOIN Author ON BookAuthor.AuthorId = Author.Id
+                WHERE Book.Id = @BookId
+                ORDER BY Author.Name ASC", queryParameters).AsList();
 
             if (bookWrappers.Count == 0) return null;
 
             var book = bookWrappers[0].ToBook();
             foreach (var bookWrapper in bookWrappers)
             {
+                if (bookWrapper.AuthorId == 0) continue;
                 var author = bookWrapper.ToAuthor();
                 book.AddAuthor(author);
             }
@@ -51,9 +57,9 @@ namespace Bookish.Data
         {
             var bookWrappers = _connection.Query<BookWrapper>(@"SELECT Book.Id, Book.Title, Book.Isbn, Author.Id AS AuthorId, Author.Name AS AuthorName
                 FROM Book
-                LEFT JOIN BookAuthor ON Book.Id = BookAuthor.BookId
-                JOIN Author ON BookAuthor.AuthorId = Author.Id
-                ORDER BY Book.Title ASC").AsList();
+                LEFT OUTER JOIN BookAuthor ON Book.Id = BookAuthor.BookId
+                LEFT OUTER JOIN Author ON BookAuthor.AuthorId = Author.Id
+                ORDER BY Book.Title ASC, Author.Name ASC").AsList();
 
             return ConvertWrappersToBooks(bookWrappers);
         }
@@ -64,15 +70,65 @@ namespace Bookish.Data
             var queryParameters = new {query = query};
             var bookWrappers = _connection.Query<BookWrapper>(@"SELECT Book.Id, Book.Title, Book.Isbn, Author.Id AS AuthorId, Author.Name AS AuthorName
                 FROM Book
-                LEFT JOIN BookAuthor ON Book.Id = BookAuthor.BookId
-                JOIN Author ON BookAuthor.AuthorId = Author.Id
+                LEFT OUTER JOIN BookAuthor ON Book.Id = BookAuthor.BookId
+                LEFT OUTER JOIN Author ON BookAuthor.AuthorId = Author.Id
                 WHERE Book.Title LIKE @query
                 OR Author.Name LIKE @query
-                ORDER BY Book.Title ASC", queryParameters).AsList();
+                ORDER BY Book.Title ASC, Author.Name ASC", queryParameters).AsList();
 
             return ConvertWrappersToBooks(bookWrappers);
         }
         
+        public (Author, List<Book>) FindAuthor(int authorId)
+        {
+            var queryParameters = new { AuthorId = authorId };
+            
+            var authorWrappers = _connection.Query<AuthorWrapper>(@"SELECT Author.Id, Author.Name, Book.Id AS BookId, Book.Title AS BookTitle, Book.Isbn AS BookIsbn
+                FROM Author
+                LEFT OUTER JOIN BookAuthor ON Author.Id = BookAuthor.AuthorId
+                LEFT OUTER JOIN Book ON BookAuthor.BookId = Book.Id
+                WHERE Author.Id = @AuthorId
+                ORDER BY Book.Title ASC", queryParameters).AsList();
+
+            if (authorWrappers.Count == 0) return (null, null);
+
+            var author = authorWrappers[0].ToAuthor();
+            var books = new List<Book>();
+            foreach (var authorWrapper in authorWrappers)
+            {
+                if (authorWrapper.BookId == 0) continue;
+                var book = FindBook(authorWrapper.BookId);
+                books.Add(book);
+            }
+
+            return (author, books);
+        }
+
+        public List<Author> FindAllAuthors()
+        {
+            var authorWrappers = _connection.Query<AuthorWrapper>(@"SELECT Author.Id, Author.Name, Book.Id AS BookId, Book.Title AS BookTitle, Book.Isbn AS BookIsbn
+                FROM Author
+                LEFT OUTER JOIN BookAuthor ON Author.Id = BookAuthor.AuthorId
+                LEFT OUTER JOIN Book ON BookAuthor.BookId = Book.Id
+                ORDER BY Author.Name ASC, Book.Title ASC").AsList();
+
+            return ConvertWrappersToAuthors(authorWrappers);
+        }
+
+        public List<Author> SearchAuthors(string query)
+        {
+            query = $"%{query}%";
+            var queryParameters = new {query = query};
+            var authorWrappers = _connection.Query<AuthorWrapper>(@"SELECT Author.Id, Author.Name, Book.Id AS BookId, Book.Title AS BookTitle, Book.Isbn AS BookIsbn
+                FROM Author
+                LEFT OUTER JOIN BookAuthor ON Author.Id = BookAuthor.AuthorId
+                LEFT OUTER JOIN Book ON BookAuthor.BookId = Book.Id
+                WHERE Author.Name LIKE @query
+                ORDER BY Author.Name ASC, Book.Title ASC", queryParameters).AsList();
+
+            return ConvertWrappersToAuthors(authorWrappers);
+        }
+
         private List<Book> ConvertWrappersToBooks(List<BookWrapper> bookWrappers)
         {
             var authors = new List<Author>();
@@ -87,14 +143,17 @@ namespace Bookish.Data
                     books.Add(book);
                 }
 
-                var author = authors.Find(a => a.Id == bookWrapper.AuthorId);
-                if (author == null)
+                if (bookWrapper.AuthorId != 0)
                 {
-                    author = bookWrapper.ToAuthor();
-                    authors.Add(author);
+                    var author = authors.Find(a => a.Id == bookWrapper.AuthorId);
+                    if (author == null)
+                    {
+                        author = bookWrapper.ToAuthor();
+                        authors.Add(author);
+                    }
+
+                    book.AddAuthor(author);
                 }
-                
-                book.AddAuthor(author);
 
                 FetchBookInstances(book);
             }
@@ -127,6 +186,36 @@ namespace Bookish.Data
                     bookInstance.AddCheckout(checkout);
                 }
             }
+        }
+
+        private List<Author> ConvertWrappersToAuthors(List<AuthorWrapper> authorWrappers)
+        {
+            var authors = new List<Author>();
+            var books = new List<Book>();
+            
+            foreach (var authorWrapper in authorWrappers)
+            {
+                var author = authors.Find(a => a.Id == authorWrapper.Id);
+                if (author == null)
+                {
+                    author = authorWrapper.ToAuthor();
+                    authors.Add(author);
+                }
+
+                if (authorWrapper.BookId != 0)
+                {
+                    var book = books.Find(b => b.Id == authorWrapper.BookId);
+                    if (book == null)
+                    {
+                        book = authorWrapper.ToBook();
+                        books.Add(book);
+                    }
+
+                    author.AddBook(book);
+                }
+            }
+
+            return authors;
         }
     }
 }

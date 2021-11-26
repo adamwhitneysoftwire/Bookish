@@ -40,6 +40,9 @@ namespace Bookish.Web
 
             services.AddTransient<IBookishClient, BookishClient>();
             services.AddTransient<IBooksService, BooksService>();
+            services.AddTransient<IBookService, BookService>();
+            services.AddTransient<IAuthorsService, AuthorsService>();
+            services.AddTransient<IAuthorService, AuthorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

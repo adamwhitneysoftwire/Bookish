@@ -6,7 +6,7 @@ namespace Bookish.Data.Models.Database
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public int Isbn { get; set; }
+        public long Isbn { get; set; }
         public int AuthorId { get; set; }
         public string AuthorName { get; set; }
 
